@@ -1,0 +1,29 @@
+body {
+    background-color: powderblue;
+}
+
+.form {
+    width: 400px;
+    margin: 0 auto;
+}
+
+a,
+a:hover,
+a:visited {
+    text-decoration: none !important;
+}
+
+.course_name,
+.course_description {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap
+}
+
+.course img {
+    height: 120px !important;
+}
+
+.nav-pagination {
+    text-align: center;
+}
