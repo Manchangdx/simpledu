@@ -2,6 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import enum
 
 db = SQLAlchemy()
 
@@ -10,13 +11,25 @@ class Base(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
+class Role(enum.Enum):
+    ROLE_USER = 10
+    ROLE_STAFF = 20
+    ROLE_ADMIN = 30
+
+class Test(db.Model):  # 这是测试用的类
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32))
+    role = db.Column(db.Enum(Role), default=Role.ROLE_USER.value, nullable=False)
+
 class User(Base, UserMixin):
-    ROLE_USER, ROLE_STAFF, ROLE_ADMIN = 10, 20, 30
+    USER = 10
+    STAFF = 20
+    ADMIN = 30
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(128), unique=True, nullable=False)
     _password = db.Column('password', db.String(256), nullable=False)
-    role = db.Column(db.SmallInteger, default=ROLE_USER)
+    role = db.Column(db.Enum(Role), nullable=False) # 不需要 default 
     job = db.Column(db.String(64))
     courses = db.relationship('Course', cascade='all, delete-orphan')
     def __repr__(self):
@@ -34,7 +47,7 @@ class User(Base, UserMixin):
 
     @property
     def is_admin(self):
-        return self.role == self.ROLE_ADMIN
+        return self.role == Role.ROLE_ADMIN
 
 
 class Course(Base):

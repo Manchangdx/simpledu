@@ -3,13 +3,14 @@ from flask import redirect, url_for, flash
 from flask_login import current_user
 from ..forms import CourseForm
 from ..decorators import admin_required
-from ..models import Course, User, db
+from ..models import db, Course, User, Role
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin.before_request
 def haha():
-    if not current_user.is_authenticated or current_user.role < User.ROLE_ADMIN:
+    if not current_user.is_authenticated or \
+        current_user.role.value < Role.ROLE_ADMIN.value:
         flash('你这个号级别不够', 'warning')
         return redirect(url_for('front.index'))
 

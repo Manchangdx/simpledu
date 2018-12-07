@@ -1,10 +1,25 @@
 from flask import Blueprint, render_template, flash, url_for, redirect
 from flask import request, current_app
 from flask_login import login_user, logout_user, login_required
-from simpledu.models import Course, User
-from simpledu.forms import LoginForm, RegisterForm
+from simpledu.models import db, Course, User, Test
+from simpledu.forms import LoginForm, RegisterForm, TestForm
 
 front = Blueprint('front', __name__)
+
+@front.route('/test', methods=['get', 'post'])  # 这是测试用的函数
+def test():
+    form = TestForm()
+    if form.validate_on_submit():
+        test = Test()
+        form.populate_obj(test)
+        test.role = form.role.data
+        db.session.add(test)
+        db.session.commit()
+        flash('添加 {} 成功'.format(test.name), 'success')
+        print(test.role.value)
+        print(type(test.role))
+        form = TestForm()
+    return render_template('test.html', form=form)
 
 @front.route('/')
 def index():
@@ -31,7 +46,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         form.create_user()
-        flash('Register Success')
+        flash('Register Success', 'success')
         return redirect(url_for('.login'))
     return render_template('register.html', form=form)
 

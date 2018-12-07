@@ -10,6 +10,13 @@
         <div class='checkbox'>
           <label>{{ i() }}{{ i.label.text }}</label>
         </div>
+      {% elif i.type == 'RadioField' %}
+        {{ i.label }}
+        {% for subfield in i %}
+          <div class='radio'>
+            <label>{{ subfield }}{{ subfield.label }}<label>
+          </div>
+        {% endfor %}
       {% else %}
         <div class='form-group {% if i.errors %}has-error{% endif %}'>
           {{ i.label }}{{ i(class='form-control') }}

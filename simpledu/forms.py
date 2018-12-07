@@ -1,9 +1,18 @@
 from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, SubmitField, 
+from wtforms import (StringField, PasswordField, SubmitField, RadioField, 
      BooleanField, ValidationError, IntegerField, TextAreaField)
 from wtforms.validators import (Length, Email, EqualTo, 
      DataRequired, URL, NumberRange)
 from .models import User, db, Course
+
+class TestForm(FlaskForm):
+    name = StringField('名字', validators=[DataRequired(), Length(3, 24)])
+    role = RadioField(
+        '身份', 
+        choices=[('USER', '普通用户'), ('STAFF', '内部员工'), ('ADMIN', '管理员')],
+        default='USER'
+    )
+    submit = SubmitField('提交')
 
 class RegisterForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired(), Length(3, 24)])
@@ -11,6 +20,15 @@ class RegisterForm(FlaskForm):
     password = PasswordField('密码', validators=[DataRequired(), Length(6, 24)])
     repeat_password = PasswordField('重复密码', 
         validators=[DataRequired(), EqualTo('password')])
+    role = RadioField(
+        '身份', 
+        choices=[
+            ('ROLE_USER', '普通用户'), 
+            ('ROLE_STAFF', '内部员工'), 
+            ('ROLE_ADMIN', '管理员')
+        ],
+        default='USER'
+    )
     submit = SubmitField('提交')
 
     def validate_username(self,field):
@@ -26,8 +44,10 @@ class RegisterForm(FlaskForm):
         user.name = self.username.data
         user.email = self.email.data
         user.password = self.password.data
+        user.role = self.role.data
         db.session.add(user)
         db.session.commit()
+        print(self.role.data)
 
 class LoginForm(FlaskForm):
     email = StringField('邮箱', validators=[DataRequired(), Email()])
