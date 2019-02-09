@@ -30,7 +30,7 @@
       <li {% if not pagination.has_prev %}class='disabled'{% endif %}>
         <a href="{{ url_for(haha, page=pagination.prev_num) if pagination.has_prev else '#' }}">&laquo;</a>
       </li>
-      {% for page in pagination.iter_pages() %}
+      {% for page in pagination.iter_pages(left_edge=1, left_current=2, right_current=2, right_edge=1) %}
         {% if page %}
           {% if page != pagination.page %}
             <li><a href="{{ url_for(haha, page=page) }}">{{ page }}</a></li>
