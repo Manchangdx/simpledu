@@ -2,10 +2,9 @@ import os, json, faker
 from random import randint
 from simpledu.models import *
 '''
-如果要在上一层目录中使用 python3 -m scripts.generate 直接运行文件生成数据，添加以下两行代码即可
+如果要在上一层目录中使用 python3 -m scripts.generate 直接运行文件生成数据，添加下面这行代码即可
 '''
-from manage import app
-app.app_context().push()
+from manage import app; app.app_context().push()
 
 fake = faker.Faker('zh-cn')
 

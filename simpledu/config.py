@@ -1,5 +1,5 @@
 class BaseConfig:
-    INDEX_PER_PAGE = 3
+    INDEX_PER_PAGE = 6
     ADMIN_PER_PAGE = 5
     SECRET_KEY = 'haha'
 

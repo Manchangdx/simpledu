@@ -52,9 +52,13 @@
     }
   </script>
   <script>
+    // 这是两个 WebSocket 连接
+    // 定义接收消息的盒子，相当于接收消息的用户
     var inbox = new WebSocket('ws://'+location.host+'/ws/receive');
+    // 定义发送消息的盒子，相当于发送消息的用户
     var outbox = new WebSocket('ws://'+location.host+"/ws/send");
 
+    // 为 inbox 和 outbox 绑定 onclose 事件，当 WebSocket 断开后，自动重连
     inbox.onclose = function(){
       this.outbox = new WebSocket('ws://'+ location.host + "/ws/receive");
     };
@@ -63,7 +67,9 @@
       this.outbox = new WebSocket('ws://'+ location.host + "/ws/send");
     };
 
-
+    // 为发言按钮绑定点击事件，当用户输入了发言内容，点击发言按钮
+    // 我们使用 jQuery 获取到发言内容和用户名
+    // 以 JSON 字符串的形式发送给后台服务器
     $("#message-form button").on("click", function(event) {
       text = $('#message-form input').val();
       username = $('#username').text();
@@ -71,6 +77,9 @@
       $('#message-form input').val('');
     });
 
+    // 为 inbox 绑定 onmessage 回调函数
+    // 当服务器有消息传递过来，解析消息
+    // 组合成 username: message 的形式添加到消息展示框中
     inbox.onmessage = function(message) {
       console.log(message);
       var data = JSON.parse(message.data);
