@@ -1,90 +1,113 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Live{% endblock %}
 
-{% block css %}
+{% block head_css %}
+  {{ super() }}
   <style>
-    #message-box {
-      background-color: #eee;
-      font-size: 15px;
-      padding: 3px 0 0 5px;
-      width: 100%;
-      height: 455px;
-      border-radius: 3px;
-      margin-bottom: 10px;
-      overflow: scroll;
+    #message-box {                  /* 聊天窗口样式设置 */
+        background-color: #eee;     /* 背景颜色 */
+        font-size: 15px;            /* 字号 */
+        padding: 3px 0 0 5px;       /* 内边距 */
+        width: 100%;                /* 宽度 */
+        height: 365px;              /* 高度 */
+        border-radius: 3px;         /* 设置圆角边框 */
+        margin-bottom: 10px;        /* 底部外边距 */
+        overflow: scroll;           /* 显示滚动条 */
     }
   </style>
 {% endblock %}
 
+
 {% block body %}
-  <div class='row'>
-    <div class='col-md-9'>
-      <video id='videoElement' width='100%' height='500px' controls='controls'></video>
-    </div>
-    <div class='col-md-3'>
-      <div id='message-box'>
+  <div class="row">
+    {% if live %}
+      <div class="col-md-9">
+        <video id="videoElement" width="100%" height="500px" controls="controls"></video>
       </div>
-      <div class='input-group' id='message-form'>
-        <input type='text' class='form-control'>
-        <span class='input-group-btn'>
-          <button class='btn btn-primary' type='button'>发言</button>
-        </span>
+      <div class="col-md-3">
+        <h2>{{ live.name }}</h2>
+        <h4>主播：{{ live.user.username }}</h4>
+        <div id="message-box">
+        </div>
+        <div class="input-group" id="message-form">
+          <input type="text" class="form-control">
+          <span class="input-group-btn">
+            <button class="btn btn-primary" type="button">发言</button>
+          </span>
+        </div>
       </div>
-    </div>
+    {% else %}
+      <h2>暂无直播</h2>
+    {% endif %}
   </div>
 {% endblock %}
 
-{% block js %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/flv.js/1.3.3/flv.min.js"></script>
+{% block tail_js %}
+  {{ super() }}
+  <script src="https://d1--cn-gotcha03.bilivideo.com/live-bvc/356956/live_19792072_4325853_1500.flv?expires=1605860246&len=0&oi=2101785433&pt=web&qn=0&trid=7905a414aa43478fb4640ca7088fb93c&sigparams=cdn,expires,len,oi,pt,qn,trid&cdn=cn-gotcha03&sign=10fa6510dc47fa2069a8b230decb2f3f&p2p_type=0&src=5&sl=1&platform=web&pSession=T56F9GA8-8yaH-4Yj8-4mmW-pdQ7aZnNri82"></script>
   <script>
-    if (flvjs.isSupported()) {
-      var videoElement = document.getElementById('videoElement');
-      var flvPlayer = flvjs.createPlayer({
-        type: 'flv',
-        isLive: true,
-        // 直播地址
-        url: 'https://cn-jsnt-dx-live-02.live-play.acgvideo.com/live-bvc/998416/live_20848957_7290944.flv?expires=1538227447&ssig=TzgSWnZrl6hQO32vYKu7fw&oi=2883570500'
-      });
-      flvPlayer.attachMediaElement(videoElement);
-      flvPlayer.load();
-      flvPlayer.play();
-    }
+      if (flvjs.isSupported()) {
+          // 获取 video 标签
+          var videoElement = document.getElementById('videoElement');
+          // 初始化播放器
+          var flvPlayer = flvjs.createPlayer({
+              type: 'flv',    // 流类型
+              isLive: true,   // 是不是直播
+              url: ''         // 直播流地址
+          });
+          flvPlayer.attachMediaElement(videoElement);
+          flvPlayer.load();   // 加载直播流
+          flvPlayer.play();   // 播放直播流
+      }
   </script>
+
   <script>
-    // 这是两个 WebSocket 连接
-    // 定义接收消息的盒子，相当于接收消息的用户
-    var inbox = new WebSocket('ws://'+location.host+'/ws/receive');
-    // 定义发送消息的盒子，相当于发送消息的用户
-    var outbox = new WebSocket('ws://'+location.host+"/ws/send");
+    // WebSocket 协议在 2008 年创制，2011 年成为国际标准，目前绝大多数浏览器都支持此协议
+    // 下面这行代码初始化一个 WebSocket 协议的对象，它就是 WebSocket 客户端
+    // 这步操作会向服务器发送对应的路由请求，并与 WebSocket 服务器创建一个连接
+    // Werkzeug 服务器收到请求后处理请求信息，生成 environ 字典对象
+    // 其中 'wsgi.websocket' 键对应的值是
+    // 后端 geventwebsocket.websocket 模块中的 WebSocket 类的实例，也就是 WebSocket 服务器
+    // Gevent-Websocket 是 Flask-Sockets 的依赖库
+    // WebSocket 服务器调用视图函数时，会将自身作为参数
+    // 并阻塞在此实例的 receive 方法上，等待接收数据
+    var inbox = new WebSocket('ws://'+ location.host + "/ws/send");
 
-    // 为 inbox 和 outbox 绑定 onclose 事件，当 WebSocket 断开后，自动重连
-    inbox.onclose = function(){
-      this.outbox = new WebSocket('ws://'+ location.host + "/ws/receive");
-    };
-
-    outbox.onclose = function(){
-      this.outbox = new WebSocket('ws://'+ location.host + "/ws/send");
-    };
-
-    // 为发言按钮绑定点击事件，当用户输入了发言内容，点击发言按钮
-    // 我们使用 jQuery 获取到发言内容和用户名
-    // 以 JSON 字符串的形式发送给后台服务器
+    // 下面第一行中 #message-form button 指的是「发言」按钮所在标签
+    // 当此按钮执行了「点击」事件，就会执行如下这段代码
+    // 从页面中获取当前登录的用户名和输入框中的信息
+    // 将这些数据做成一个 JSON 类型的字符串
+    // 调用 inbox 对象的 send 方法发送这个字符串到服务器
+    // 服务器的视图函数阻塞在 geventwebsocket.websocket.WebSocket 实例的 receive 方法上
+    // 收到字符串之后解除阻塞，继续向下执行
     $("#message-form button").on("click", function(event) {
+      username = $('#username').text()
       text = $('#message-form input').val();
-      username = $('#username').text();
-      outbox.send(JSON.stringify({username: username, text: text}));
+      inbox.send(JSON.stringify({ username: username, text: text }));
+      // 最后将输入框设置为空
       $('#message-form input').val('');
     });
 
-    // 为 inbox 绑定 onmessage 回调函数
-    // 当服务器有消息传递过来，解析消息
-    // 组合成 username: message 的形式添加到消息展示框中
+    // 服务器的 inbox 视图函数收到浏览器的 inbox 发给它的消息后
+    // 利用 Redis 客户端将消息发送到 chat 频道中
+    // 然后 Redis 客户端会同时收到频道推送给它的消息，再将这个消息交给各个 WebSocket 实例
+    // 这些实例再将消息发到各自对应的浏览器上
+    // 浏览器收到消息后，inbox 对象的 onmessage 方法就会被调用
+    // 如下所示，解析数据并整理，将消息显示在 #message-box 所在标签中，也就是聊天窗口
     inbox.onmessage = function(message) {
-      console.log(message);
       var data = JSON.parse(message.data);
-      $('#message-box').append('<p><b>'+data.username+'</b>: '+data.text+'</p>');
+      console.log(message);
+      console.log(data);
+      $("#message-box").append('<p><b>' + data.username + '</b>' + ' : ' + data.text + '</p>');
     };
-
+  
+    // 如果 inbox 对象与服务器的连接关闭，onclose 方法会被触发
+    // 此处会创建一个新的 inbox 对象，以重建连接
+    inbox.onclose = function(){
+      console.log('inbox closed');
+      this.inbox = new WebSocket('ws://'+ location.host + "/ws/send");
+    };
+  
   </script>
 {% endblock %}

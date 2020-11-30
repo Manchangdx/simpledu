@@ -1,9 +1,7 @@
-{% extends 'admin/index.html' %}
-{% from 'macros.html' import render_form %}
-
-{% block title %}Create Course{% endblock %}
+{% extends "admin/index.html" %}
+{% from "macros.html" import render_form %}
 
 {% block admin %}
-  <h4>添加课程</h4>
+  <h4>创建课程</h4>
   {{ render_form(form, url_for('admin.create_course')) }}
 {% endblock %}

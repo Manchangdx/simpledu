@@ -1,17 +1,21 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}{{ chapter.name }}{% endblock %}
+{% block title %}
+  {{ chapter.name }}
+{% endblock %}
 
-{% block css %}
-  <link href="http://vjs.zencdn.net/6.2.7/video-js.css" rel="stylesheet">
+{% block head_css %}
+  {{ super() }}
+  <link href="https://vjs.zencdn.net/7.8.2/video-js.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
-  <video class='video-js vjs-16-9 vjs-big-play-centered' data-setup='{"fluid": true, "controls": true}'>
-    <source src="{{ chapter.video_url }}" type='video/mp4'>
+  <video class="video-js vjs-16-9 vjs-big-play-centered" data-setup='{"fluid":true, "controls": true}'>
+    <source src="{{ chapter.video_url }}" type='video/mp4' />
   </video>
 {% endblock %}
 
-{% block js %}
-  <script src="http://vjs.zencdn.net/6.2.8/video.js"></script>
+{% block tail_js %}
+  {{ super() }}
+  <script src="https://vjs.zencdn.net/7.8.2/video.min.js"></script>
 {% endblock %}

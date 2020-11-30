@@ -1,5 +1,5 @@
 body {
-    background-color: powderblue;
+      background-color: powderblue;
 }
 
 .form {
@@ -10,20 +10,20 @@ body {
 a,
 a:hover,
 a:visited {
-    text-decoration: none !important;
+  text-decoration: none !important;
 }
 
-.course_name,
-.course_description {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap
+.course__name,
+.course__description {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
 }
 
 .course img {
-    height: 150px !important;
+  height: 160px !important;
 }
 
 .nav-pagination {
-    text-align: center;
+      text-align: center;
 }

@@ -13,4 +13,4 @@ flask db upgrade
 python3 -m scripts.generate
 
 # 启动程序
-flask run
+gunicorn -c scripts/gunicorn.py manage:app

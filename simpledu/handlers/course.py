@@ -1,13 +1,22 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
-from simpledu.models import Course, Chapter
+
+from ..models import Course, Chapter
+
 
 course = Blueprint('course', __name__, url_prefix='/courses')
 
+
+@course.route('/index')
+def index():
+    return 'course index'
+
+
 @course.route('/<int:course_id>')
 def detail(course_id):
-    course = Course.query.filter_by(id=course_id).first()
+    course = Course.query.get_or_404(course_id)
     return render_template('course/detail.html', course=course)
+
 
 @course.route('/<int:course_id>/chapters/<int:chapter_id>')
 @login_required

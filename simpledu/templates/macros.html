@@ -1,21 +1,24 @@
 {% macro render_form(form, url) %}
-  <form method='post' action="{{ url }}">
+  <form method="POST" action="{{ url }}">
     {{ form.csrf_token }}
-    {% for i in form %}
-      {% if i.type == 'CSRFTokenField' %}
+    {% for field in form %}
+      {% if field.type == 'CSRFTokenField' %}
         {{ '' }}
-      {% elif i.type == 'SubmitField' %}
-        {{ form.submit(class='btn btn-primary') }}
-      {% elif i.type == 'BooleanField' %}
-        <div class='checkbox'>
-          <label>{{ i() }}{{ i.label.text }}</label>
+
+      {% elif field.type == 'SubmitField' %}
+        {{ form.submit(class='btn btn-primary', type='submit') }}
+
+      {% elif field.type == 'BooleanField' %}
+        <div class="checkbox">
+          <label>{{ field() }} {{ field.label.text }}</label>
         </div>
+
       {% else %}
-        <div class='form-group {% if i.errors %}has-error{% endif %}'>
-          {{ i.label }}{{ i(class='form-control') }}
-          {% if i.errors %}
-            {% for error in i.errors %}
-              <span class='help-block'>{{ error }}</span>
+        <div class="form-group {% if field.errors %}has-error{% endif %}">
+          {{ field.label }} {{ field(class='form-control') }}
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <span class="help-block">{{ error }}</span>
             {% endfor %}
           {% endif %}
         </div>
@@ -24,25 +27,35 @@
   </form>
 {% endmacro %}
 
-{% macro render_pagination(pagination, haha) %}
-  <nav class='nav-pagination' aria-label='Page navigation'>
-    <ul class='pagination'>
-      <li {% if not pagination.has_prev %}class='disabled'{% endif %}>
-        <a href="{{ url_for(haha, page=pagination.prev_num) if pagination.has_prev else '#' }}">&laquo;</a>
+
+{% macro render_pagination(pagination, endpoint) %}
+  <nav class="nav-pagination" aria-label="Page navigation">
+    <ul class=pagination>
+      <!-- 左箭头，链接到上一页，如果没有上一页，设为 disabled -->
+      <li {% if not pagination.has_prev %} class="disabled" {% endif %}>
+        <a href="{{url_for(endpoint, page=pagination.prev_num) if pagination.has_prev else '#'}}">&laquo;</a>
       </li>
-      {% for page in pagination.iter_pages(left_edge=1, left_current=2, right_current=2, right_edge=1) %}
+      
+      <!-- 页数，每个页数设置一个链接 -->
+      <!-- 如果有几十页上百页，不能一股脑全显示出来对吧？那应该显示哪些页数呢？这有点儿复杂 -->
+      <!-- 通常的规则是显示当前页的前一页和后两页以及第一页和最后一页的页数链接 -->
+      <!-- 具体怎么设计不需要我们考虑，iter_pages 会做这件事 -->
+      {% for page in pagination.iter_pages() %}
         {% if page %}
           {% if page != pagination.page %}
-            <li><a href="{{ url_for(haha, page=page) }}">{{ page }}</a></li>
+            <li><a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a></li>
           {% else %}
-            <li class='active'><a href='#'>{{ page }}<span class='sr-only'>(current)</span></a></li>
+            <!-- 当前页设置为选中样式 -->
+            <li class="active"><a href="#">{{page}} <span class="sr-only">(current)</span></a></li>
           {% endif %}
         {% else %}
-          <li><span class='ellipsis'>...</span></li>
+          <li><span class="ellipsis">...</span></li>
         {% endif %}
       {% endfor %}
-      <li {% if not pagination.has_next %}class='disabled'{% endif %}>
-        <a href="{{ url_for(haha, page=pagination.next_num) if pagination.has_next else '#' }}">&raquo;</a>
+      
+      <!-- 右箭头，链接到下一页，如果没有下一页，设为 disabled -->
+      <li {% if not pagination.has_next %} class="disabled" {% endif %}>
+        <a href="{{url_for(endpoint, page=pagination.next_num) if pagination.has_next else '#'}}">&raquo;</a>
       </li>
     </ul>
   </nav>
