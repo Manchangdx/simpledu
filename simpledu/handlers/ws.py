@@ -76,6 +76,11 @@ chat.start()        # 异步启动 redis 的 PUB/SUB 系统的「监听已订阅
 def inbox(ws):
     # 注册用户，也就是把 ws 放到聊天室的 clients 列表里
     chat.register(ws)
+
+    data = {'username': 'New user comes in, people count',
+            'text': len(chat.clients)}
+    redis.publish('chat', json.dumps(data))
+
     while not ws.closed:
         # 这里 receive 方法阻塞运行
         # 等待前端的 inbox 对象执行 send 方法发送信息过来

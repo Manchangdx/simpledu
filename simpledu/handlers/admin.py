@@ -1,9 +1,11 @@
+import json
 from flask import Blueprint, render_template, request, current_app
 from flask import redirect, url_for, flash
 
 from ..decorators import admin_required
 from ..models import db, Course, User, Live
-from ..forms import CourseForm, RegisterForm, LiveForm
+from ..forms import CourseForm, RegisterForm, LiveForm, MessageForm
+from .ws import redis
 
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -136,3 +138,13 @@ def delete_user(user_id):
     return redirect(url_for('.users'))
 
 
+@admin.route('/message', methods=['GET', 'POST'])
+@admin_required
+def send_message():
+    form = MessageForm()
+    if form.validate_on_submit():
+        data = {'username': 'System', 'text': form.text.data}
+        redis.publish('chat', json.dumps(data))
+        flash('系统消息发送成功', 'success')
+        return redirect(url_for('.index'))
+    return render_template('admin/send_message.html', form=form)
