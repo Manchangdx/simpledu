@@ -1,4 +1,3 @@
-import os
 import json
 from random import randint
 from faker import Faker
@@ -40,8 +39,8 @@ def iter_courses():
 
 def iter_chapters():
 
-    for course in Course.query:
-        for i in range(randint(3, 10)):
+    for course in Course.query.all():
+        for _ in range(randint(3, 10)):
             yield Chapter(
                 name=fake.sentence(),
                 course=course,
@@ -66,3 +65,6 @@ def run():
     except Exception as e:
         print(e)
         db.session.rollback()
+
+
+run()

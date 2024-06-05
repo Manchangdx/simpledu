@@ -106,3 +106,12 @@ class LiveForm(FlaskForm):
         db.session.add(live)
         db.session.commit()
         return live
+
+
+class MessageForm(FlaskForm):
+    """发送消息表单类
+    """
+
+    title = StringField('标题', validators=[DataRequired(), Length(1, 256)])
+    content = TextAreaField('内容', validators=[DataRequired()])
+    submit = SubmitField('发送')
